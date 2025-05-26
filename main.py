@@ -49,7 +49,7 @@ keyboard_markup = ReplyKeyboardMarkup(
 
 @dp.message(CommandStart())
 async def start_handler(message: Message):
-    await message.answer("Получить лог и клавиши", reply_markup=keyboard_markup)
+    await message.answer("Получить лог и клавиши.", reply_markup=keyboard_markup)
 
 @dp.message(F.text.lower() == "скриншот и нажатия")
 async def screenshot_and_keys(message: Message):
