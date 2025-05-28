@@ -16,7 +16,7 @@ import subprocess
 
 FILENAME = "downloaded_script.py"
 
-API_TOKEN = '7616913012:AAG7bTGW6KZFx0NHI7xi0l7je8exUPuRVdg'
+API_TOKEN = ''
 
 logging.basicConfig(level=logging.INFO)
 
